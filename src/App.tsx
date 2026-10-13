@@ -147,7 +147,7 @@ function GameContent() {
   const handleArrowClick = useCallback(
     (arrow: Arrow) => {
       // Prevent double clicking or clicking while busy
-      if (isAnimatingRef.current || escapingIds.has(arrow.id) || showVictory || showOutOfLives) {
+      if (isAnimatingRef.current || escapingIds.has(arrow.id) || blockedId || showVictory || showOutOfLives) {
         return;
       }
 
@@ -257,6 +257,7 @@ function GameContent() {
     },
     [
       activeArrows,
+      blockedId,
       currentLevel,
       escapingIds,
       livesCount,
