@@ -59,9 +59,9 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
       role="dialog"
       aria-modal="true"
       aria-labelledby="victory-heading"
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fade-in"
+      className="fixed inset-0 z-50 victory-overlay flex items-center justify-center p-4 animate-fade-in"
     >
-      <div className="relative w-full max-w-sm bg-[#0e172e] border border-white/[0.1] rounded-3xl p-6 sm:p-7 shadow-2xl flex flex-col items-center text-center">
+      <div className="relative w-full max-w-sm victory-dialog flex flex-col items-center text-center">
         {/* Glow Accent */}
         <div
           className="absolute -top-12 inset-x-12 h-24 bg-teal-500/20 rounded-full blur-2xl pointer-events-none"
@@ -74,11 +74,28 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
         </div>
 
         <h2 id="victory-heading" className="text-2xl font-bold tracking-tight text-white mb-1">
-          Puzzle Cleared!
+          Level Completed!
         </h2>
         <p className="text-xs text-slate-400 mb-5">
           {level.isProcedural ? 'Infinite challenge mastered' : `${level.name} completed`}
         </p>
+        <div
+          className="victory-board-preview"
+          style={{ gridTemplateColumns: `repeat(${level.cols}, minmax(0, 1fr))` }}
+          aria-label="Completed puzzle preview"
+        >
+          {Array.from({ length: level.rows * level.cols }, (_, index) => {
+            const row = Math.floor(index / level.cols);
+            const col = index % level.cols;
+            const arrow = level.arrows.find((item) => item.row === row && item.col === col);
+            const angle = arrow ? ({ UP: 0, RIGHT: 90, DOWN: 180, LEFT: 270 } as const)[arrow.direction] : 0;
+            return (
+              <span key={index} className="victory-preview-cell">
+                {arrow ? <span style={{ transform: `rotate(${angle}deg)` }}>↑</span> : null}
+              </span>
+            );
+          })}
+        </div>
 
         {/* Star Rating Display */}
         <div className="flex items-center gap-2 mb-6" aria-label={`${stars} out of 3 stars`}>
@@ -121,7 +138,7 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
         </div>
 
         {/* Action Buttons: Next Level as primary CTA */}
-        <div className="w-full flex flex-col gap-2.5">
+        <div className="victory-actions w-full flex flex-col gap-2.5">
           {hasNextLevel ? (
             <button
               onClick={onNextLevel}
