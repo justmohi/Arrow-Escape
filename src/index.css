@@ -247,7 +247,7 @@ button { font: inherit; -webkit-tap-highlight-color: transparent; }
 .profile-row-copy small { color: #8794a6; font-size: 11px; }
 
 /* Puzzle board and controls */
-.puzzle-board-wrap { max-width: 560px !important; }
+.puzzle-board-wrap { max-width: 520px; }
 .puzzle-board {
   overflow: hidden;
   border: 0 !important;
@@ -341,7 +341,7 @@ button { font: inherit; -webkit-tap-highlight-color: transparent; }
   .home-brand h1 { font-size: 36px; }
   .home-tip { font-size: 10px; }
   .profile-screen { padding: 20px 12px 24px; }
-  .puzzle-board-wrap { max-width: min(100vw - 24px, 560px) !important; }
+  .puzzle-board-wrap { max-width: min(calc(100vw - 24px), 560px) !important; }
   .game-content .max-w-2xl { max-width: 100%; }
 }
 
