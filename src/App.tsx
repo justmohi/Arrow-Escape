@@ -514,13 +514,13 @@ export default function App() {
 
   return (
     <AuthProvider
-      key={syncedKey}
       onSyncApplied={() => {
-        // Trigger re-render of local progress if synced from cloud
+        // Reload game state from local storage after a cloud sync without
+        // remounting AuthProvider (which would restart auth sync repeatedly).
         setSyncedKey((k) => k + 1);
       }}
     >
-      <GameContent />
+      <GameContent key={syncedKey} />
     </AuthProvider>
   );
 }
