@@ -66,7 +66,7 @@ A sleek, satisfying, logic-based grid puzzle game inspired by directional escape
 ## 🚀 Development & Setup
 
 ### Prerequisites
-- Node.js (v18+ recommended)
+- Node.js 20.19+ or 22.12+ (required by Vite 8)
 - npm or yarn
 
 ### Installation
