@@ -38,16 +38,16 @@ export function buildBentPathLevel(source: LevelData): LevelData {
     const desiredLength = count > 24 ? 3 : count > 12 ? 4 : 4;
     for (let step = 1; step < desiredLength; step++) {
       const current = path[path.length - 1];
-      const order = previousDirection
+      const order: Direction[] = previousDirection
         ? perpendiculars[previousDirection]
         : perpendiculars[arrow.direction];
-      const candidates = order.map((direction) => {
+      const candidates: { point: GridPoint; direction: Direction }[] = order.map((direction: Direction) => {
         const [dr, dc] = directionVector(direction);
         return { point: { row: current.row + dr, col: current.col + dc }, direction };
       }).filter(({ point }) => inside(point, rows, cols) && !occupied.has(key(point)));
       if (!candidates.length) break;
       // Stable variation keeps paths visually diverse while remaining reproducible.
-      const candidate = candidates[(index + step) % candidates.length];
+      const candidate: { point: GridPoint; direction: Direction } = candidates[(index + step) % candidates.length];
       path.push(candidate.point);
       occupied.add(key(candidate.point));
       previousDirection = candidate.direction;
