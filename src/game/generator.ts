@@ -1,4 +1,5 @@
 import { Arrow, Difficulty, Direction, LevelData } from '../types/game';
+import { buildBentPathLevel } from './pathGeometry';
 import { isLevelSolvable, solvePuzzle } from './solver';
 
 interface GeneratorConfig {
@@ -149,7 +150,7 @@ export function generateProceduralLevel(
         ).length;
 
         // Validated solvable puzzle!
-        return {
+        return buildBentPathLevel({
           id: `proc_${difficulty}_${Date.now()}_${attempt}`,
           levelNumber: 999,
           name: `${difficulty.toUpperCase()} Procedural #${Math.floor(Math.random() * 899 + 100)}`,
@@ -160,13 +161,13 @@ export function generateProceduralLevel(
           parMoves: arrows.length,
           description: `Procedurally generated and verified ${difficulty} puzzle with ${arrows.length} arrows.`,
           isProcedural: true,
-        };
+        });
       }
     }
   }
 
   // Guaranteed fallback template if random loop didn't meet criteria
-  return getFallbackLevel(difficulty);
+  return buildBentPathLevel(getFallbackLevel(difficulty));
 }
 
 function getFallbackLevel(difficulty: Difficulty): LevelData {
@@ -179,7 +180,7 @@ function getFallbackLevel(difficulty: Difficulty): LevelData {
       { id: 'fb_5', row: 0, col: 1, direction: 'LEFT', colorVariant: 'mint' },
       { id: 'fb_6', row: 3, col: 2, direction: 'RIGHT', colorVariant: 'indigo' },
     ];
-    return {
+    return buildBentPathLevel({
       id: 'fb_easy',
       levelNumber: 999,
       name: 'Procedural Easy (Verified)',
@@ -189,7 +190,7 @@ function getFallbackLevel(difficulty: Difficulty): LevelData {
       arrows,
       parMoves: arrows.length,
       isProcedural: true,
-    };
+    });
   }
 
   // Medium fallback
@@ -206,7 +207,7 @@ function getFallbackLevel(difficulty: Difficulty): LevelData {
     { id: 'fb_m10', row: 1, col: 0, direction: 'RIGHT', colorVariant: 'emerald' },
   ];
 
-  return {
+  return buildBentPathLevel({
     id: `fb_${difficulty}`,
     levelNumber: 999,
     name: `Procedural ${difficulty.toUpperCase()} (Verified)`,
@@ -216,5 +217,5 @@ function getFallbackLevel(difficulty: Difficulty): LevelData {
     arrows,
     parMoves: arrows.length,
     isProcedural: true,
-  };
+  });
 }
