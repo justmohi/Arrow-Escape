@@ -97,12 +97,6 @@ export const ArrowCell: React.FC<ArrowCellProps> = ({
       <button
         type="button"
         onClick={() => onClick(arrow)}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            onClick(arrow);
-          }
-        }}
         disabled={isEscaping}
         aria-label={`Arrow pointing ${arrow.direction} at row ${arrow.row + 1}, column ${arrow.col + 1}`}
         className={`arrow-cell group relative w-full h-full rounded-2xl flex items-center justify-center cursor-pointer select-none
