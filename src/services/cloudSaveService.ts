@@ -48,15 +48,17 @@ export async function saveCloudData(
   const docPath = `${COLLECTION_NAME}/${userId}`;
   const now = new Date().toISOString();
 
+  // Firestore rejects undefined values by default. Omit optional fields when
+  // they are absent instead of serializing them as explicit undefined values.
   const payload: CloudUserData = {
     userId,
-    email: userProfile?.email || undefined,
-    displayName: userProfile?.displayName || undefined,
     progress,
     settings,
-    lastPlayedLevelId: lastPlayedLevelId || undefined,
     updatedAt: now,
     version: existingVersion + 1,
+    ...(userProfile?.email ? { email: userProfile.email } : {}),
+    ...(userProfile?.displayName ? { displayName: userProfile.displayName } : {}),
+    ...(lastPlayedLevelId ? { lastPlayedLevelId } : {}),
   };
 
   try {
