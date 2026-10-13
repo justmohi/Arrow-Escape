@@ -56,7 +56,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({
 
   return (
     <div className="w-full flex items-center justify-center py-2 sm:py-4 px-2">
-      <div className={`relative w-full ${boardMaxWidth} aspect-square`}>
+      <div className={`relative w-full ${boardMaxWidth} aspect-square puzzle-board-wrap`}>
         {/* Subtle Ambient Glow Behind Board */}
         <div
           className="absolute -inset-4 bg-gradient-to-tr from-teal-500/10 via-cyan-500/5 to-indigo-500/10 rounded-3xl blur-2xl pointer-events-none"
@@ -64,7 +64,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({
         />
 
         {/* Board Enclosure Frame */}
-        <div className="relative w-full h-full bg-[#0b1328]/95 border border-white/[0.08] rounded-3xl p-3 sm:p-4 shadow-2xl backdrop-blur-xl flex flex-col justify-center items-center">
+        <div className="puzzle-board relative w-full h-full flex flex-col justify-center items-center">
           {/* Subtle perimeter dots / exit indicators */}
           <div className="absolute inset-x-8 top-1 flex justify-between pointer-events-none opacity-20">
             <span className="text-[10px] text-teal-400 font-mono">▲</span>
@@ -85,7 +85,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({
 
           {/* Dynamic Grid Layout */}
           <div
-            className="w-full h-full grid gap-1.5 sm:gap-2.5"
+            className="puzzle-grid w-full h-full grid"
             style={{
               gridTemplateRows: `repeat(${rows}, minmax(0, 1fr))`,
               gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
