@@ -155,3 +155,40 @@ body { color: #1c2d49 !important; }
   #root main { padding: 8px 0 76px !important; }
   #root main > div.w-full.max-w-2xl { width: 100%; }
 }
+
+
+/* Clean white board with navy directional arrows */
+#root .arrow-empty-cell {
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+}
+#root .arrow-cell {
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 5px !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+}
+#root .arrow-cell > div:first-child {
+  display: none !important;
+}
+#root .arrow-cell svg {
+  filter: none !important;
+}
+#root .arrow-cell svg path {
+  transition: fill .15s ease;
+}
+#root .arrow-cell:hover {
+  background: rgba(49,136,232,.07) !important;
+}
+#root .arrow-cell.hint-active {
+  background: rgba(245,166,35,.16) !important;
+  outline: 2px solid #f5a623;
+}
+#root .arrow-cell.anim-bump-up,
+#root .arrow-cell.anim-bump-down,
+#root .arrow-cell.anim-bump-left,
+#root .arrow-cell.anim-bump-right {
+  background: rgba(240,68,68,.1) !important;
+}
