@@ -24,7 +24,7 @@ export const ArrowCell: React.FC<ArrowCellProps> = ({
   if (!arrow) {
     return (
       <div
-        className="w-full h-full rounded-xl bg-slate-900/30 border border-white/[0.03] transition-colors"
+        className="arrow-empty-cell w-full h-full rounded-xl transition-colors"
         aria-hidden="true"
       />
     );
@@ -105,7 +105,7 @@ export const ArrowCell: React.FC<ArrowCellProps> = ({
         }}
         disabled={isEscaping}
         aria-label={`Arrow pointing ${arrow.direction} at row ${arrow.row + 1}, column ${arrow.col + 1}`}
-        className={`group relative w-full h-full rounded-2xl flex items-center justify-center cursor-pointer select-none
+        className={`arrow-cell group relative w-full h-full rounded-2xl flex items-center justify-center cursor-pointer select-none
           border bg-gradient-to-b backdrop-blur-sm transition-all duration-200
           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#070d1d]
           active:scale-95
@@ -146,7 +146,7 @@ export const ArrowCell: React.FC<ArrowCellProps> = ({
             {/* Arrow Stem & Tip Path with smooth curved styling */}
             <path
               d="M22 6L33 19H26.5V36C26.5 37.1 25.6 38 24.5 38H19.5C18.4 38 17.5 37.1 17.5 36V19H11L22 6Z"
-              fill={isBlocked ? '#f43f5e' : isHinted ? '#fde047' : colors.fill}
+              fill={isBlocked ? '#f04444' : isHinted ? '#f5a623' : '#10234d'}
               className="transition-colors duration-200"
             />
             {/* Subtle inner bevel / highlight line */}
