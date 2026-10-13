@@ -1,10 +1,18 @@
 export type Direction = 'UP' | 'DOWN' | 'LEFT' | 'RIGHT';
 
+export interface GridPoint {
+  row: number;
+  col: number;
+}
+
 export interface Arrow {
   id: string;
+  /** Arrowhead cell. Kept for compatibility with existing saved progress and level definitions. */
   row: number;
   col: number;
   direction: Direction;
+  /** Ordered path from tail to arrowhead; every point is an occupied board cell. */
+  path?: GridPoint[];
   colorVariant?: 'mint' | 'cyan' | 'amber' | 'emerald' | 'indigo';
 }
 
@@ -31,16 +39,16 @@ export interface MoveRecord {
 
 export interface LevelProgress {
   completed: boolean;
-  stars: number; // 1 to 3
+  stars: number;
   bestMoves: number;
-  bestTime: number; // seconds
+  bestTime: number;
 }
 
 export type ProgressMap = Record<string, LevelProgress>;
 
 export interface GameSettings {
   soundEnabled: boolean;
-  soundVolume: number; // 0 to 1
+  soundVolume: number;
   reducedMotion: boolean;
   showEscapeTrajectories: boolean;
   highContrast: boolean;
