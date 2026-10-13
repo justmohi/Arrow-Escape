@@ -6,10 +6,10 @@ interface MeScreenProps {
   progress: ProgressMap;
   onSettings: () => void;
   onHelp: () => void;
-  onAbout: () => void;
+  onInfo: (section: 'Awards' | 'Achievements' | 'About Game' | 'Privacy') => void;
 }
 
-export const MeScreen: React.FC<MeScreenProps> = ({ progress, onSettings, onHelp, onAbout }) => {
+export const MeScreen: React.FC<MeScreenProps> = ({ progress, onSettings, onHelp, onInfo }) => {
   const entries = Object.values(progress);
   const completed = entries.filter(item => item.completed).length;
   const stars = entries.reduce((sum, item) => sum + (item.stars || 0), 0);
@@ -34,15 +34,15 @@ export const MeScreen: React.FC<MeScreenProps> = ({ progress, onSettings, onHelp
       </div>
       <div className="profile-section-label">YOUR PROGRESS</div>
       <div className="profile-list">
-        {row(<Award size={22} />, 'Awards', 'Your stars and milestones', onAbout)}
-        {row(<Gamepad2 size={22} />, 'Achievements', 'Keep solving to improve your score', onAbout)}
+        {row(<Award size={22} />, 'Awards', 'Your stars and milestones', () => onInfo('Awards'))}
+        {row(<Gamepad2 size={22} />, 'Achievements', 'Keep solving to improve your score', () => onInfo('Achievements'))}
       </div>
       <div className="profile-section-label">APP</div>
       <div className="profile-list">
         {row(<Settings size={22} />, 'Settings', 'Sound, motion and game options', onSettings)}
         {row(<CircleHelp size={22} />, 'Help', 'Learn how to play', onHelp)}
-        {row(<Info size={22} />, 'About Game', 'About Arrow Escape', onAbout)}
-        {row(<ShieldCheck size={22} />, 'Privacy', 'Local and cloud save information', onAbout)}
+        {row(<Info size={22} />, 'About Game', 'About Arrow Escape', () => onInfo('About Game'))}
+        {row(<ShieldCheck size={22} />, 'Privacy', 'Local and cloud save information', () => onInfo('Privacy'))}
       </div>
     </section>
   );
