@@ -35,6 +35,9 @@ jobs:
       - name: Type-check
         run: npm run lint
 
+      - name: Validate puzzle geometry and solvability
+        run: npm run validate:levels
+
       - name: Build production bundle
         run: npm run build
 
