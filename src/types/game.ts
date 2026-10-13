@@ -47,7 +47,7 @@ export interface GameSettings {
   colorScheme: 'mint' | 'cyan' | 'violet' | 'amber';
 }
 
-export type GameView = 'MENU' | 'PLAY' | 'LEVEL_SELECT' | 'GENERATOR';
+export type GameView = 'HOME' | 'ME' | 'MENU' | 'PLAY' | 'LEVEL_SELECT' | 'GENERATOR';
 
 export interface GameStats {
   totalLevelsCompleted: number;
