@@ -17,7 +17,6 @@ import {
   hasSeenTutorial,
   markTutorialSeen,
   loadLastPlayedLevelId,
-  saveLastPlayedLevelId,
   resetAllData,
   defaultSettings,
 } from './utils/storage';
@@ -125,10 +124,12 @@ function GameContent() {
     isAnimatingRef.current = false;
     setCurrentView('PLAY');
 
+    // Persist the selected campaign level locally and to the signed-in user's cloud save.
+    // Procedural boards are generated at runtime and are not yet serializable for restore.
     if (!level.isProcedural) {
-      saveLastPlayedLevelId(level.id);
+      void saveToCloudOrLocal(progress, settings, level.id);
     }
-  }, []);
+  }, [progress, settings, saveToCloudOrLocal]);
 
   // Handle arrow click / interaction
   const handleArrowClick = useCallback(
@@ -195,8 +196,16 @@ function GameContent() {
               );
               setProgress(updatedProg);
 
-              // Auto-save to cloud (or local storage for guests)
-              saveToCloudOrLocal(updatedProg, settings, currentLevel.id);
+              // Save the next campaign level as the resume point immediately, even if
+              // the player closes the browser while the victory dialog is still open.
+              // Procedural boards cannot currently be reconstructed after a reload.
+              const nextCampaignLevel = currentLevel.isProcedural
+                ? undefined
+                : getLevelByIndex(currentLevel.levelNumber);
+              const resumeLevelId = currentLevel.isProcedural
+                ? undefined
+                : (nextCampaignLevel?.id || currentLevel.id);
+              saveToCloudOrLocal(updatedProg, settings, resumeLevelId);
 
               const prevBest = progress[currentLevel.id]?.bestMoves;
               setIsNewBestRecord(!prevBest || newMoves < prevBest);
@@ -269,7 +278,10 @@ function GameContent() {
     setHintedId(null);
     setShowVictory(false);
     isAnimatingRef.current = false;
-  }, [currentLevel]);
+    if (!currentLevel.isProcedural) {
+      void saveToCloudOrLocal(progress, settings, currentLevel.id);
+    }
+  }, [currentLevel, progress, settings, saveToCloudOrLocal]);
 
   // Working Hint action
   const handleHint = useCallback(() => {
