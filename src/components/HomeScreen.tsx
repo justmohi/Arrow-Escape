@@ -35,7 +35,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
       <div className="home-brand">
         <div className="brand-mark"><span>➜</span></div>
         <p className="brand-kicker">A little logic goes a long way</p>
-        <h1>Arrow <span>Puzzle</span></h1>
+        <h1>Arrow <span>Escape</span></h1>
         <p className="brand-description">Clear the paths. Free every arrow.</p>
       </div>
 
