@@ -92,3 +92,66 @@
     animation: none !important;
   }
 }
+
+
+/* Arrow Puzzle-inspired light mobile skin (original Arrow Escape branding) */
+:root {
+  color-scheme: light;
+  --bg-primary: #f7f9fc;
+  --bg-surface: #ffffff;
+  --bg-elevated: #eef3f9;
+  --accent-mint: #3488e8;
+  --accent-cyan: #2586e8;
+  --accent-amber: #f5a623;
+  --border-subtle: rgba(31, 54, 88, 0.1);
+}
+html, body, #root { min-height: 100%; background: #f7f9fc !important; }
+body { color: #1c2d49 !important; }
+#root > div.min-h-screen {
+  background: #f7f9fc !important;
+  color: #1c2d49 !important;
+  background-image: radial-gradient(ellipse at 12% 8%, rgba(56, 151, 244, .07), transparent 34%), radial-gradient(ellipse at 92% 85%, rgba(255, 177, 90, .07), transparent 30%) !important;
+}
+#root header {
+  background: rgba(255,255,255,.96) !important;
+  border-color: #dfe6ef !important;
+  box-shadow: 0 2px 14px rgba(28, 55, 90, .05);
+}
+#root header button, #root header span { color: #34506f; }
+#root main { justify-content: flex-start !important; padding-top: clamp(10px, 3vh, 28px) !important; }
+#root footer { color: #8591a3 !important; border-color: #e0e6ef !important; }
+#root .text-white { color: #1d2f4c !important; }
+#root .text-slate-100, #root .text-slate-200 { color: #263b59 !important; }
+#root .text-slate-300 { color: #53647c !important; }
+#root .text-slate-400, #root .text-slate-500 { color: #77869b !important; }
+#root .text-teal-300, #root .text-teal-400 { color: #3288e8 !important; }
+#root .bg-\[\#070d1d\], #root .bg-\[\#0e172e\], #root .bg-\[\#0d162e\] {
+  background-color: #fff !important;
+}
+#root .border-white\/\[0\.08\], #root .border-white\/\[0\.1\], #root .border-white\/\[0\.07\] {
+  border-color: #dfe6ef !important;
+}
+#root .bg-slate-900\/80, #root .bg-slate-900\/90, #root .bg-slate-900\/60,
+#root .bg-slate-800\/80, #root .bg-slate-950\/40 {
+  background-color: #f0f4f9 !important;
+}
+#root .bg-teal-500, #root .bg-gradient-to-r.from-teal-500 {
+  background-color: #3188e8 !important;
+}
+#root .bg-gradient-to-r.from-teal-500 {
+  background-image: linear-gradient(110deg, #398ff0, #2479d5) !important;
+  color: white !important;
+}
+#root .shadow-2xl, #root .shadow-lg { box-shadow: 0 8px 24px rgba(40, 79, 125, .12) !important; }
+#root .bg-\[\#0b1328\]\/95 {
+  background: #fff !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 12px 34px rgba(41, 71, 111, .08) !important;
+}
+#root .rounded-3xl { border-radius: 22px !important; }
+#root .rounded-2xl { border-radius: 16px !important; }
+#root button { -webkit-tap-highlight-color: transparent; }
+@media (max-width: 640px) {
+  #root main { padding: 8px 0 76px !important; }
+  #root main > div.w-full.max-w-2xl { width: 100%; }
+}
