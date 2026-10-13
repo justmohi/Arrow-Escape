@@ -34,6 +34,7 @@ import { AuthModal } from './components/AuthModal';
 import { MigrationModal } from './components/MigrationModal';
 import { HomeScreen } from './components/HomeScreen';
 import { MeScreen } from './components/MeScreen';
+import { OutOfLivesModal } from './components/OutOfLivesModal';
 import { Home, CalendarDays, UserRound, X, Trophy } from 'lucide-react';
 
 function GameContent() {
@@ -51,6 +52,7 @@ function GameContent() {
   const [showSettings, setShowSettings] = useState(false);
   const [showTutorial, setShowTutorial] = useState(false);
   const [showVictory, setShowVictory] = useState(false);
+  const [showOutOfLives, setShowOutOfLives] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
 
   // --- Active Puzzle State ---
@@ -66,6 +68,7 @@ function GameContent() {
   const [activeArrows, setActiveArrows] = useState<Arrow[]>(() => currentLevel.arrows);
   const [moveHistory, setMoveHistory] = useState<MoveRecord[]>([]);
   const [movesCount, setMovesCount] = useState(0);
+  const [livesCount, setLivesCount] = useState(3);
   const [timerSeconds, setTimerSeconds] = useState(0);
   const [isTimerRunning, setIsTimerRunning] = useState(true);
 
@@ -98,6 +101,7 @@ function GameContent() {
       currentView === 'PLAY' &&
       isTimerRunning &&
       !showVictory &&
+      !showOutOfLives &&
       !showSettings &&
       !showLevelSelect &&
       !showTutorial &&
@@ -111,7 +115,7 @@ function GameContent() {
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [currentView, isTimerRunning, showVictory, showSettings, showLevelSelect, showTutorial, showAuthModal, migrationModal]);
+  }, [currentView, isTimerRunning, showVictory, showOutOfLives, showSettings, showLevelSelect, showTutorial, showAuthModal, migrationModal]);
 
   // Load a new level
   const loadLevel = useCallback((level: LevelData) => {
@@ -119,6 +123,8 @@ function GameContent() {
     setActiveArrows(level.arrows);
     setMoveHistory([]);
     setMovesCount(0);
+    setLivesCount(3);
+    setShowOutOfLives(false);
     setTimerSeconds(0);
     setIsTimerRunning(true);
     setEscapingIds(new Set());
@@ -141,7 +147,7 @@ function GameContent() {
   const handleArrowClick = useCallback(
     (arrow: Arrow) => {
       // Prevent double clicking or clicking while busy
-      if (isAnimatingRef.current || escapingIds.has(arrow.id) || showVictory) {
+      if (isAnimatingRef.current || escapingIds.has(arrow.id) || showVictory || showOutOfLives) {
         return;
       }
 
@@ -234,6 +240,14 @@ function GameContent() {
         soundManager.playBlocked();
         setBlockedId(arrow.id);
         setBlockedById(pathResult.blockedBy?.id || null);
+        setLivesCount((remaining) => {
+          if (remaining <= 1) {
+            setShowOutOfLives(true);
+            setIsTimerRunning(false);
+            return 0;
+          }
+          return remaining - 1;
+        });
 
         // Reset blocked feedback animation after 240ms
         setTimeout(() => {
@@ -252,6 +266,7 @@ function GameContent() {
       saveToCloudOrLocal,
       settings,
       showVictory,
+      showOutOfLives,
       timerSeconds,
     ]
   );
@@ -276,6 +291,8 @@ function GameContent() {
     setActiveArrows(currentLevel.arrows);
     setMoveHistory([]);
     setMovesCount(0);
+    setLivesCount(3);
+    setShowOutOfLives(false);
     setTimerSeconds(0);
     setIsTimerRunning(true);
     setEscapingIds(new Set());
@@ -456,6 +473,7 @@ function GameContent() {
               onHint={handleHint}
               hintCountUsed={hintCountUsed}
               isHintActive={!!hintedId}
+              lives={livesCount}
             />
             <GameBoard
               rows={currentLevel.rows}
@@ -497,6 +515,15 @@ function GameContent() {
           </button>
         </nav>
       )}
+
+      <OutOfLivesModal
+        onContinue={() => {
+          setLivesCount(1);
+          setShowOutOfLives(false);
+          setIsTimerRunning(true);
+        }}
+        onRestart={handleRestart}
+      />
 
       <VictoryModal
         isOpen={showVictory}
