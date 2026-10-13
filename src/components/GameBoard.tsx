@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
-import { Arrow } from '../types/game';
-import { ArrowCell } from './ArrowCell';
+import { Arrow, Direction, GridPoint } from '../types/game';
+import { directionVector, getArrowCells } from '../game/solver';
 
 interface GameBoardProps {
   rows: number;
@@ -14,105 +14,104 @@ interface GameBoardProps {
   onArrowClick: (arrow: Arrow) => void;
 }
 
+const arrowColors: Record<NonNullable<Arrow['colorVariant']>, string> = {
+  mint: '#1687e8',
+  cyan: '#0d9bd7',
+  amber: '#e49a27',
+  emerald: '#1b9a80',
+  indigo: '#536bd6',
+};
+
+function cellKey(cell: GridPoint) {
+  return `${cell.row},${cell.col}`;
+}
+
+function pointAt(cell: GridPoint) {
+  return { x: (cell.col + 0.5) * 100, y: (cell.row + 0.5) * 100 };
+}
+
+function getArrowPath(arrow: Arrow) {
+  return getArrowCells(arrow).map(pointAt).map((point) => `${point.x},${point.y}`).join(' ');
+}
+
+function arrowHead(arrow: Arrow) {
+  const { x, y } = pointAt({ row: arrow.row, col: arrow.col });
+  const [dr, dc] = directionVector(arrow.direction);
+  const tip = { x: x + dc * 37, y: y + dr * 37 };
+  const base = { x: x - dc * 10, y: y - dr * 10 };
+  const perp = { x: -dr * 15, y: dc * 15 };
+  return `${tip.x},${tip.y} ${base.x + perp.x},${base.y + perp.y} ${base.x - perp.x},${base.y - perp.y}`;
+}
+
 export const GameBoard: React.FC<GameBoardProps> = ({
-  rows,
-  cols,
-  arrows,
-  escapingIds,
-  blockedId,
-  blockedById,
-  hintedId,
-  reducedMotion,
-  onArrowClick,
+  rows, cols, arrows, escapingIds, blockedId, blockedById, hintedId, reducedMotion, onArrowClick,
 }) => {
-  // Map of "row,col" -> Arrow for fast grid lookup
-  const arrowGrid = useMemo(() => {
+  const cellMap = useMemo(() => {
     const map = new Map<string, Arrow>();
     for (const arrow of arrows) {
-      map.set(`${arrow.row},${arrow.col}`, arrow);
+      for (const cell of getArrowCells(arrow)) map.set(cellKey(cell), arrow);
     }
     return map;
   }, [arrows]);
 
-  // Generate grid cell coordinates
   const cells = useMemo(() => {
-    const list: { r: number; c: number; arrow?: Arrow }[] = [];
-    for (let r = 0; r < rows; r++) {
-      for (let c = 0; c < cols; c++) {
-        list.push({
-          r,
-          c,
-          arrow: arrowGrid.get(`${r},${c}`),
-        });
+    const result: { row: number; col: number; arrow?: Arrow }[] = [];
+    for (let row = 0; row < rows; row++) {
+      for (let col = 0; col < cols; col++) {
+        result.push({ row, col, arrow: cellMap.get(`${row},${col}`) });
       }
     }
-    return list;
-  }, [rows, cols, arrowGrid]);
+    return result;
+  }, [rows, cols, cellMap]);
 
-  // Compute maximum board dimensions to maintain a clean square aspect ratio and prevent overflow
-  // On mobile: max ~360px-400px; on desktop: max 520px
-  const maxDim = Math.max(rows, cols);
-  const boardMaxWidth = maxDim <= 4 ? 'max-w-[360px]' : maxDim <= 5 ? 'max-w-[440px]' : 'max-w-[520px]';
+  const boardSize = Math.max(rows, cols);
+  const boardMaxWidth = boardSize <= 5 ? 'max-w-[440px]' : boardSize <= 8 ? 'max-w-[560px]' : 'max-w-[660px]';
 
   return (
     <div className="w-full flex items-center justify-center py-2 sm:py-4 px-2">
       <div className={`relative w-full ${boardMaxWidth} aspect-square puzzle-board-wrap`}>
-        {/* Subtle Ambient Glow Behind Board */}
-        <div
-          className="absolute -inset-4 bg-gradient-to-tr from-teal-500/10 via-cyan-500/5 to-indigo-500/10 rounded-3xl blur-2xl pointer-events-none"
-          aria-hidden="true"
-        />
-
-        {/* Board Enclosure Frame */}
-        <div className="puzzle-board relative w-full h-full flex flex-col justify-center items-center">
-          {/* Subtle perimeter dots / exit indicators */}
-          <div className="absolute inset-x-8 top-1 flex justify-between pointer-events-none opacity-20">
-            <span className="text-[10px] text-teal-400 font-mono">▲</span>
-            <span className="text-[10px] text-teal-400 font-mono">▲</span>
-          </div>
-          <div className="absolute inset-x-8 bottom-1 flex justify-between pointer-events-none opacity-20">
-            <span className="text-[10px] text-teal-400 font-mono">▼</span>
-            <span className="text-[10px] text-teal-400 font-mono">▼</span>
-          </div>
-          <div className="absolute inset-y-8 left-1 flex flex-col justify-between pointer-events-none opacity-20">
-            <span className="text-[10px] text-teal-400 font-mono">◀</span>
-            <span className="text-[10px] text-teal-400 font-mono">◀</span>
-          </div>
-          <div className="absolute inset-y-8 right-1 flex flex-col justify-between pointer-events-none opacity-20">
-            <span className="text-[10px] text-teal-400 font-mono">▶</span>
-            <span className="text-[10px] text-teal-400 font-mono">▶</span>
-          </div>
-
-          {/* Dynamic Grid Layout */}
+        <div className="puzzle-board relative w-full h-full">
           <div
             className="puzzle-grid w-full h-full grid"
-            style={{
-              gridTemplateRows: `repeat(${rows}, minmax(0, 1fr))`,
-              gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
-            }}
+            style={{ gridTemplateRows: `repeat(${rows}, minmax(0, 1fr))`, gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}
           >
-            {cells.map(({ r, c, arrow }) => {
-              const cellKey = `cell_${r}_${c}`;
-              const isEscaping = arrow ? escapingIds.has(arrow.id) : false;
-              const isBlocked = arrow ? blockedId === arrow.id : false;
-              const isBlocker = arrow ? blockedById === arrow.id : false;
-              const isHinted = arrow ? hintedId === arrow.id : false;
-
+            {cells.map(({ row, col, arrow }) => (
+              <button
+                key={`cell_${row}_${col}`}
+                type="button"
+                aria-label={arrow ? `Select bent arrow at row ${arrow.row + 1}, column ${arrow.col + 1}` : 'Empty cell'}
+                disabled={!arrow || escapingIds.has(arrow.id)}
+                onClick={() => arrow && onArrowClick(arrow)}
+                className={`path-hit-cell ${arrow ? 'path-hit-active' : ''} ${arrow && blockedId === arrow.id ? 'path-hit-blocked' : ''} ${arrow && blockedById === arrow.id ? 'path-hit-blocker' : ''} ${arrow && hintedId === arrow.id ? 'path-hit-hinted' : ''}`}
+              />
+            ))}
+          </div>
+          <svg
+            className="arrow-path-overlay"
+            viewBox={`0 0 ${cols * 100} ${rows * 100}`}
+            preserveAspectRatio="none"
+            aria-hidden="true"
+          >
+            {arrows.map((arrow) => {
+              const points = getArrowPath(arrow);
+              const color = blockedId === arrow.id || blockedById === arrow.id
+                ? '#ed4d5b'
+                : hintedId === arrow.id
+                  ? '#f0a52c'
+                  : arrowColors[arrow.colorVariant ?? 'mint'];
               return (
-                <div key={cellKey} className="relative w-full h-full flex items-center justify-center">
-                  <ArrowCell
-                    arrow={arrow}
-                    cellSize={0}
-                    isEscaping={isEscaping}
-                    isBlocked={isBlocked || isBlocker}
-                    isHinted={isHinted}
-                    reducedMotion={reducedMotion}
-                    onClick={onArrowClick}
-                  />
-                </div>
+                <g
+                  key={arrow.id}
+                  className={`bent-arrow ${escapingIds.has(arrow.id) ? 'bent-arrow-escaping' : ''} ${reducedMotion ? 'bent-arrow-reduced-motion' : ''}`}
+                  style={{ '--arrow-color': color } as React.CSSProperties}
+                >
+                  <polyline points={points} fill="none" stroke={color} strokeWidth="10" strokeLinecap="round" strokeLinejoin="round" />
+                  <polygon points={arrowHead(arrow)} fill={color} />
+                  <polyline points={points} fill="none" stroke="white" strokeOpacity=".32" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                </g>
               );
             })}
-          </div>
+          </svg>
         </div>
       </div>
     </div>
