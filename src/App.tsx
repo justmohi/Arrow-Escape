@@ -47,7 +47,7 @@ function GameContent() {
   // --- Navigation & Modal State ---
   const [currentView, setCurrentView] = useState<GameView>('HOME');
   const [showTournament, setShowTournament] = useState(false);
-  const [showAbout, setShowAbout] = useState(false);
+  const [infoPanel, setInfoPanel] = useState<{ title: string; description: string } | null>(null);
   const [showLevelSelect, setShowLevelSelect] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showTutorial, setShowTutorial] = useState(false);
@@ -448,7 +448,15 @@ function GameContent() {
             progress={progress}
             onSettings={() => setShowSettings(true)}
             onHelp={() => setShowTutorial(true)}
-            onAbout={() => setShowAbout(true)}
+            onInfo={(section) => {
+              const descriptions: Record<'Awards' | 'Achievements' | 'About Game' | 'Privacy', string> = {
+                Awards: `${Object.values(progress).reduce((sum, item) => sum + (item.stars || 0), 0)} stars earned across ${Object.values(progress).filter((item) => item.completed).length} completed levels.`,
+                Achievements: 'Complete more puzzles, earn stars, and improve your best move counts to build your puzzle record.',
+                'About Game': 'Arrow Escape is a logic puzzle game. Tap an arrow only when its path to the board edge is clear.',
+                Privacy: 'Progress and settings are stored in this browser. If you sign in, game progress can also sync with your account. No ad-reward verification is configured in this project.',
+              };
+              setInfoPanel({ title: section, description: descriptions[section] });
+            }}
           />
         ) : currentView === 'GENERATOR' ? (
           <GeneratorView
@@ -588,14 +596,14 @@ function GameContent() {
         </div>
       )}
 
-      {showAbout && (
-        <div className="feature-overlay" role="dialog" aria-modal="true" aria-labelledby="about-title">
+      {infoPanel && (
+        <div className="feature-overlay" role="dialog" aria-modal="true" aria-labelledby="info-panel-title">
           <div className="feature-dialog">
-            <button type="button" className="feature-close" onClick={() => setShowAbout(false)} aria-label="Close"><X size={20} /></button>
+            <button type="button" className="feature-close" onClick={() => setInfoPanel(null)} aria-label="Close"><X size={20} /></button>
             <div className="feature-dialog-icon"><Trophy size={30} /></div>
-            <h2 id="about-title">About Arrow Escape</h2>
-            <p>Arrow Escape is a logic puzzle game. Your progress is saved in this browser and can be synced to your account when you sign in. The daily challenge uses a level selected for the current date.</p>
-            <button type="button" className="feature-primary" onClick={() => setShowAbout(false)}>Got it</button>
+            <h2 id="info-panel-title">{infoPanel.title}</h2>
+            <p>{infoPanel.description}</p>
+            <button type="button" className="feature-primary" onClick={() => setInfoPanel(null)}>Got it</button>
           </div>
         </div>
       )}
