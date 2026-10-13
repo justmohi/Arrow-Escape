@@ -460,3 +460,54 @@ button { font: inherit; -webkit-tap-highlight-color: transparent; }
   .victory-board-preview { width: min(100%, 210px); margin-bottom: 10px; }
   .victory-dialog > .w-16.h-16 { width: 46px !important; height: 46px !important; margin-bottom: 8px !important; }
 }
+
+
+/* Connected, bent arrow paths */
+.puzzle-board-wrap { max-width: min(100%, 660px); }
+.puzzle-board {
+  overflow: hidden;
+  border: 1px solid #e4eaf2 !important;
+  border-radius: 12px !important;
+  background-color: #fff !important;
+  background-image: radial-gradient(#d7e0eb 1.2px, transparent 1.2px);
+  background-size: 19px 19px;
+  box-shadow: 0 10px 28px rgba(44,70,105,.08) !important;
+}
+.puzzle-grid { position: relative; z-index: 2; gap: 0 !important; }
+.path-hit-cell {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  cursor: default;
+  touch-action: manipulation;
+}
+.path-hit-cell.path-hit-active { cursor: pointer; }
+.path-hit-cell.path-hit-active:hover { background: rgba(49,136,232,.045); }
+.path-hit-cell:focus-visible { outline: 2px solid #3188e8; outline-offset: -3px; z-index: 5; }
+.path-hit-blocked, .path-hit-blocker { background: rgba(237,77,91,.09); }
+.path-hit-hinted { background: rgba(240,165,44,.13); }
+.arrow-path-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: visible;
+}
+.bent-arrow { transform-origin: center; transition: opacity .24s ease, filter .24s ease; }
+.bent-arrow polyline { vector-effect: non-scaling-stroke; }
+.bent-arrow polygon { vector-effect: non-scaling-stroke; }
+.bent-arrow-escaping { opacity: 0; filter: blur(1px); }
+.bent-arrow-reduced-motion { transition: none; }
+@media (max-width: 480px) {
+  .puzzle-board-wrap { width: 100%; }
+  .puzzle-board { background-size: 15px 15px; }
+  .bent-arrow polyline { stroke-width: 8px; }
+}
