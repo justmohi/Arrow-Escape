@@ -32,6 +32,9 @@ import { TutorialModal } from './components/TutorialModal';
 import { GeneratorView } from './components/GeneratorView';
 import { AuthModal } from './components/AuthModal';
 import { MigrationModal } from './components/MigrationModal';
+import { HomeScreen } from './components/HomeScreen';
+import { MeScreen } from './components/MeScreen';
+import { Home, CalendarDays, UserRound, X, Trophy } from 'lucide-react';
 
 function GameContent() {
   const { migrationModal, saveToCloudOrLocal } = useAuth();
@@ -41,7 +44,9 @@ function GameContent() {
   const [settings, setSettings] = useState<GameSettings>(() => loadSettings());
 
   // --- Navigation & Modal State ---
-  const [currentView, setCurrentView] = useState<GameView>('PLAY');
+  const [currentView, setCurrentView] = useState<GameView>('HOME');
+  const [showTournament, setShowTournament] = useState(false);
+  const [showAbout, setShowAbout] = useState(false);
   const [showLevelSelect, setShowLevelSelect] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showTutorial, setShowTutorial] = useState(false);
@@ -90,6 +95,7 @@ function GameContent() {
   useEffect(() => {
     let interval: ReturnType<typeof setInterval> | null = null;
     if (
+      currentView === 'PLAY' &&
       isTimerRunning &&
       !showVictory &&
       !showSettings &&
@@ -105,7 +111,7 @@ function GameContent() {
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [isTimerRunning, showVictory, showSettings, showLevelSelect, showTutorial, showAuthModal, migrationModal]);
+  }, [currentView, isTimerRunning, showVictory, showSettings, showLevelSelect, showTutorial, showAuthModal, migrationModal]);
 
   // Load a new level
   const loadLevel = useCallback((level: LevelData) => {
@@ -376,34 +382,64 @@ function GameContent() {
   const hasNextLevel =
     currentLevel.isProcedural || currentLevel.levelNumber < HANDCRAFTED_LEVELS.length;
 
-  return (
-    <div className="min-h-screen flex flex-col bg-[#070d1d] text-slate-100 selection:bg-teal-500/20 selection:text-teal-200">
-      {/* Top Bar Header */}
-      <Header
-        currentView={currentView}
-        onNavigate={(view) => setCurrentView(view)}
-        onOpenTutorial={() => setShowTutorial(true)}
-        onOpenSettings={() => setShowSettings(true)}
-        onOpenAuth={() => setShowAuthModal(true)}
-        soundEnabled={settings.soundEnabled}
-        onToggleSound={() => {
-          const updated = !settings.soundEnabled;
-          const nextSettings = { ...settings, soundEnabled: updated };
-          setSettings(nextSettings);
-          saveToCloudOrLocal(progress, nextSettings, currentLevel.id);
-        }}
-      />
+  const startDailyChallenge = () => {
+    const now = new Date();
+    const dayOfYear = Math.floor((now.getTime() - new Date(now.getFullYear(), 0, 0).getTime()) / 86400000);
+    const dailyLevel = HANDCRAFTED_LEVELS[dayOfYear % HANDCRAFTED_LEVELS.length] || HANDCRAFTED_LEVELS[0];
+    loadLevel(dailyLevel);
+  };
 
-      {/* Main Content Area */}
-      <main className="flex-1 flex flex-col items-center justify-center p-2 sm:p-4">
-        {currentView === 'GENERATOR' ? (
+  return (
+    <div className={`app-shell min-h-screen flex flex-col ${currentView === 'HOME' || currentView === 'ME' ? 'app-shell-home' : ''}`}>
+      {(currentView === 'PLAY' || currentView === 'GENERATOR') && (
+        <Header
+          currentView={currentView}
+          onNavigate={(view) => {
+            if (view === 'LEVEL_SELECT') {
+              setShowLevelSelect(true);
+              return;
+            }
+            setCurrentView(view);
+          }}
+          onOpenTutorial={() => setShowTutorial(true)}
+          onOpenSettings={() => setShowSettings(true)}
+          onOpenAuth={() => setShowAuthModal(true)}
+          soundEnabled={settings.soundEnabled}
+          onToggleSound={() => {
+            const updated = !settings.soundEnabled;
+            const nextSettings = { ...settings, soundEnabled: updated };
+            setSettings(nextSettings);
+            saveToCloudOrLocal(progress, nextSettings, currentLevel.id);
+          }}
+        />
+      )}
+
+      <main className={`app-main flex-1 flex flex-col items-center ${currentView === 'PLAY' ? 'game-main' : ''}`}>
+        {currentView === 'HOME' ? (
+          <HomeScreen
+            levelNumber={currentLevel.levelNumber}
+            onContinue={() => setCurrentView('PLAY')}
+            onRestart={() => {
+              handleRestart();
+              setCurrentView('PLAY');
+            }}
+            onDaily={startDailyChallenge}
+            onTournament={() => setShowTournament(true)}
+          />
+        ) : currentView === 'ME' ? (
+          <MeScreen
+            progress={progress}
+            onSettings={() => setShowSettings(true)}
+            onHelp={() => setShowTutorial(true)}
+            onAbout={() => setShowAbout(true)}
+          />
+        ) : currentView === 'GENERATOR' ? (
           <GeneratorView
             onStartLevel={(level) => loadLevel(level)}
             onBackToCampaign={() => setCurrentView('PLAY')}
           />
         ) : (
-          <div className="w-full max-w-2xl flex flex-col items-center">
-            {/* HUD with working controls and clean unboxed metadata */}
+          <div className="w-full max-w-2xl flex flex-col items-center game-content">
             <HUD
               levelNumber={currentLevel.levelNumber}
               levelName={currentLevel.name}
@@ -421,8 +457,6 @@ function GameContent() {
               hintCountUsed={hintCountUsed}
               isHintActive={!!hintedId}
             />
-
-            {/* Responsive Interactive Game Board */}
             <GameBoard
               rows={currentLevel.rows}
               cols={currentLevel.cols}
@@ -434,23 +468,36 @@ function GameContent() {
               reducedMotion={settings.reducedMotion}
               onArrowClick={handleArrowClick}
             />
-
-            {/* Subtle instructional note for beginners */}
-            <div className="mt-2 text-center text-xs text-slate-500 max-w-xs sm:max-w-md">
-              <p>
-                Tap an arrow to send it off the board. Arrows with blocked paths will bump and stay.
-              </p>
+            <div className="game-instructions mt-2 text-center text-xs text-slate-500 max-w-xs sm:max-w-md">
+              <p>Tap an arrow to send it off the board. If its path is blocked, clear the obstacle first.</p>
             </div>
+            <button type="button" className="back-home-link" onClick={() => setCurrentView('HOME')}>
+              <Home size={16} /> Main Menu
+            </button>
           </div>
         )}
       </main>
 
-      {/* Footer with clean copyright and credits */}
-      <footer className="w-full py-3 px-4 border-t border-white/[0.05] text-center text-xs text-slate-600">
-        <p>Arrow Escape · Pure logic grid puzzle game with Cloud & Guest saves</p>
-      </footer>
+      {(currentView === 'PLAY' || currentView === 'GENERATOR') && (
+        <footer className="app-footer w-full py-3 px-4 text-center text-xs">
+          <p>Arrow Escape · A logic puzzle game with local and cloud saves</p>
+        </footer>
+      )}
 
-      {/* Modals */}
+      {(currentView === 'HOME' || currentView === 'ME') && (
+        <nav className="bottom-game-nav" aria-label="Main navigation">
+          <button type="button" className={currentView === 'HOME' ? 'active' : ''} onClick={() => setCurrentView('HOME')}>
+            <Home size={23} strokeWidth={2.5} /><span>Main</span>
+          </button>
+          <button type="button" onClick={startDailyChallenge}>
+            <CalendarDays size={22} strokeWidth={2.3} /><span>Daily</span>
+          </button>
+          <button type="button" className={currentView === 'ME' ? 'active' : ''} onClick={() => setCurrentView('ME')}>
+            <UserRound size={23} strokeWidth={2.5} /><span>Me</span>
+          </button>
+        </nav>
+      )}
+
       <VictoryModal
         isOpen={showVictory}
         level={currentLevel}
@@ -497,18 +544,33 @@ function GameContent() {
         onClose={() => setShowSettings(false)}
       />
 
-      <TutorialModal
-        isOpen={showTutorial}
-        onClose={() => setShowTutorial(false)}
-      />
+      <TutorialModal isOpen={showTutorial} onClose={() => setShowTutorial(false)} />
+      <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
 
-      {/* Authentication Modal */}
-      <AuthModal
-        isOpen={showAuthModal}
-        onClose={() => setShowAuthModal(false)}
-      />
+      {showTournament && (
+        <div className="feature-overlay" role="dialog" aria-modal="true" aria-labelledby="tournament-title">
+          <div className="feature-dialog">
+            <button type="button" className="feature-close" onClick={() => setShowTournament(false)} aria-label="Close"><X size={20} /></button>
+            <div className="feature-dialog-icon"><Trophy size={30} /></div>
+            <h2 id="tournament-title">Weekly Tournament</h2>
+            <p>Challenge mode is being prepared. You can keep improving your level scores while tournament rankings are added.</p>
+            <button type="button" className="feature-primary" onClick={() => { setShowTournament(false); setShowLevelSelect(true); }}>Choose a puzzle</button>
+          </div>
+        </div>
+      )}
 
-      {/* Guest-to-Account Migration Modal */}
+      {showAbout && (
+        <div className="feature-overlay" role="dialog" aria-modal="true" aria-labelledby="about-title">
+          <div className="feature-dialog">
+            <button type="button" className="feature-close" onClick={() => setShowAbout(false)} aria-label="Close"><X size={20} /></button>
+            <div className="feature-dialog-icon"><Trophy size={30} /></div>
+            <h2 id="about-title">About Arrow Escape</h2>
+            <p>Arrow Escape is a logic puzzle game. Your progress is saved in this browser and can be synced to your account when you sign in. The daily challenge uses a level selected for the current date.</p>
+            <button type="button" className="feature-primary" onClick={() => setShowAbout(false)}>Got it</button>
+          </div>
+        </div>
+      )}
+
       {migrationModal && (
         <MigrationModal
           isOpen={migrationModal.isOpen}
