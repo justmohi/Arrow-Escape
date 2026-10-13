@@ -1,5 +1,5 @@
 import React from 'react';
-import { RotateCcw, Undo2, Lightbulb, Play, ArrowRight } from 'lucide-react';
+import { RotateCcw, Undo2, Lightbulb, Heart } from 'lucide-react';
 import { Difficulty } from '../types/game';
 
 interface HUDProps {
@@ -18,6 +18,7 @@ interface HUDProps {
   onHint: () => void;
   hintCountUsed: number;
   isHintActive: boolean;
+  lives: number;
 }
 
 export const HUD: React.FC<HUDProps> = ({
@@ -36,6 +37,7 @@ export const HUD: React.FC<HUDProps> = ({
   onHint,
   hintCountUsed,
   isHintActive,
+  lives,
 }) => {
   const formatTime = (secs: number): string => {
     const mins = Math.floor(secs / 60);
@@ -67,6 +69,16 @@ export const HUD: React.FC<HUDProps> = ({
         <div className="flex items-center gap-2 font-mono tabular-nums text-slate-400">
           <span>{formatTime(timerSeconds)}</span>
         </div>
+      </div>
+
+      <div className="lives-status-row" aria-label={`${lives} lives remaining`}>
+        <div className="lives-count"><span className="lives-arrow-mark">➤</span><strong>{remainingArrows}</strong></div>
+        <div className="lives-heart-list">
+          {[0, 1, 2].map((life) => (
+            <Heart key={life} size={25} strokeWidth={1.8} fill={life < lives ? '#f34d62' : '#dfe5ec'} color={life < lives ? '#f34d62' : '#dfe5ec'} />
+          ))}
+        </div>
+        <span className={`difficulty-chip difficulty-${difficulty}`}>{difficultyLabels[difficulty]}</span>
       </div>
 
       {/* Main Stats and Controls Bar */}
