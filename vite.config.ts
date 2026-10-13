@@ -5,7 +5,9 @@ import {defineConfig} from 'vite';
 
 export default defineConfig(() => {
   return {
-    base: '/Arrow-Escape/',
+    // Netlify serves this app from the domain root; GitHub Pages serves it
+    // from the repository subpath.
+    base: process.env.NETLIFY ? '/' : '/Arrow-Escape/',
     plugins: [react(), tailwindcss()],
     resolve: {
       alias: {
