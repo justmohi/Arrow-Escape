@@ -50,7 +50,7 @@ export const TutorialModal: React.FC<TutorialModalProps> = ({
               Blocked Path:
             </div>
             <p className="text-xs text-slate-300">
-              If another arrow is in the way, your move is rejected with a bump animation. You must clear the obstacle arrow first!
+              If another arrow is in the way, your move is rejected and costs one heart. Clear the obstacle arrow first to save your lives!
             </p>
           </div>
           <div className="p-3 rounded-2xl bg-teal-950/30 border border-teal-500/20 flex flex-col gap-2">
