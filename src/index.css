@@ -344,3 +344,41 @@ button { font: inherit; -webkit-tap-highlight-color: transparent; }
   .puzzle-board-wrap { max-width: min(100vw - 24px, 560px) !important; }
   .game-content .max-w-2xl { max-width: 100%; }
 }
+
+
+/* Lives HUD and recovery dialog */
+.lives-status-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: fit-content;
+  min-width: min(100%, 330px);
+  margin: 0 auto 4px;
+  padding: 9px 13px;
+  border: 1px solid #edf1f6;
+  border-radius: 999px;
+  background: rgba(255,255,255,.96);
+  box-shadow: 0 5px 18px rgba(40,74,115,.08);
+}
+.lives-count { display: inline-flex; align-items: center; gap: 7px; color: #66768c; }
+.lives-count strong { font-size: 15px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.lives-arrow-mark { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 9px; background: #eef3f9; color: #65758b; }
+.lives-heart-list { display: flex; align-items: center; gap: 5px; }
+.difficulty-chip { padding: 7px 12px; border-radius: 999px; background: #f0f4f9; color: #65758b; font-size: 12px; font-weight: 800; }
+.difficulty-hard, .difficulty-expert { background: #fff0e8; color: #d56824; }
+.lives-overlay { position: fixed; inset: 0; z-index: 65; display: flex; align-items: center; justify-content: center; padding: 20px; background: rgba(22,34,53,.58); backdrop-filter: blur(4px); }
+.lives-dialog { width: min(100%, 420px); padding: 30px 24px 25px; border-radius: 28px; background: #fff; text-align: center; box-shadow: 0 24px 90px rgba(10,30,57,.28); }
+.lives-dialog h2 { margin: 0; color: #111827; font-size: 24px; font-weight: 900; letter-spacing: -.03em; }
+.lives-heart-art { position: relative; width: 145px; height: 145px; display: grid; place-items: center; margin: 20px auto 12px; border-radius: 50%; background: #f0f4f9; }
+.lives-heart-art span { position: absolute; top: 2px; right: 9px; display: grid; place-items: center; min-width: 39px; height: 39px; padding: 0 6px; border: 3px solid white; border-radius: 50%; background: #3188e8; color: white; font-size: 13px; font-weight: 900; }
+.lives-dialog p { margin: 0 0 22px; color: #7a8799; font-size: 12px; line-height: 1.6; }
+.lives-primary, .lives-secondary { width: 100%; min-height: 50px; display: flex; align-items: center; justify-content: center; gap: 8px; border: 0; border-radius: 999px; cursor: pointer; font-weight: 800; }
+.lives-primary { background: linear-gradient(110deg,#398ff0,#2479d5); color: white; box-shadow: 0 7px 16px rgba(49,136,232,.2); }
+.lives-secondary { margin-top: 8px; background: transparent; color: #347fce; }
+@media (max-width: 480px) {
+  .lives-status-row { min-width: 0; width: min(100%, 330px); padding: 8px 10px; gap: 9px; }
+  .lives-heart-list { gap: 2px; }
+  .lives-heart-list svg { width: 22px; height: 22px; }
+  .difficulty-chip { padding: 6px 9px; }
+}
