@@ -9,54 +9,92 @@ const perpendiculars: Record<Direction, Direction[]> = {
   RIGHT: ['UP', 'DOWN', 'RIGHT', 'LEFT'],
 };
 
-const key = (p: GridPoint) => `${p.row},${p.col}`;
-const inside = (p: GridPoint, rows: number, cols: number) =>
-  p.row >= 0 && p.row < rows && p.col >= 0 && p.col < cols;
+const key = (point: GridPoint) => `${point.row},${point.col}`;
+const inside = (point: GridPoint, rows: number, cols: number) =>
+  point.row >= 0 && point.row < rows && point.col >= 0 && point.col < cols;
 
-/**
- * Expands legacy single-cell levels into connected orthogonal paths.
- * Layouts are deterministic, cell-exclusive and sized to leave room for every path.
- */
+/** Expands legacy single-cell levels into connected orthogonal paths with exclusive cells. */
 export function buildBentPathLevel(source: LevelData): LevelData {
   const count = source.arrows.length;
-  const side = Math.max(source.rows, source.cols, Math.ceil(Math.sqrt(count * 3)) + 2);
+  const side = Math.max(source.rows, source.cols, Math.ceil(Math.sqrt(count * 3)) + 3);
   const rows = side;
   const cols = side;
-  const remapped = source.arrows.map((arrow) => ({
+  const remapped: Arrow[] = source.arrows.map((arrow) => ({
     ...arrow,
     row: Math.round(arrow.row * (rows - 1) / Math.max(1, source.rows - 1)),
     col: Math.round(arrow.col * (cols - 1) / Math.max(1, source.cols - 1)),
-    path: undefined as GridPoint[] | undefined,
+    path: undefined,
   }));
 
-  // Reserve all arrowheads first, so no path can cover another arrowhead.
   const heads = new Set(remapped.map((arrow) => `${arrow.row},${arrow.col}`));
   const occupied = new Set(heads);
-  const seeded = remapped.map((arrow, index) => {
-    const path: GridPoint[] = [{ row: arrow.row, col: arrow.col }];
-    let previousDirection: Direction | null = null;
-    const desiredLength = count > 24 ? 3 : count > 12 ? 4 : 4;
-    for (let step = 1; step < desiredLength; step++) {
-      const current = path[path.length - 1];
-      const order: Direction[] = previousDirection
-        ? perpendiculars[previousDirection]
-        : perpendiculars[arrow.direction];
-      const candidates: { point: GridPoint; direction: Direction }[] = order.map((direction: Direction) => {
-        const [dr, dc] = directionVector(direction);
-        return { point: { row: current.row + dr, col: current.col + dc }, direction };
-      }).filter(({ point }) => inside(point, rows, cols) && !occupied.has(key(point)));
-      if (!candidates.length) break;
-      // Stable variation keeps paths visually diverse while remaining reproducible.
-      const candidate: { point: GridPoint; direction: Direction } = candidates[(index + step) % candidates.length];
-      path.push(candidate.point);
-      occupied.add(key(candidate.point));
-      previousDirection = candidate.direction;
-    }
-    return { ...arrow, path: path.reverse() };
+  const paths = remapped.map((arrow) => ({
+    arrow,
+    cells: [{ row: arrow.row, col: arrow.col }] as GridPoint[],
+    lastDirection: null as Direction | null,
+  }));
+
+  // Give every arrow a first body cell before any path is allowed to grow longer.
+  // The most constrained heads are placed first so they cannot be starved by long neighbors.
+  const priority = paths.map((entry, index) => ({ entry, index })).sort((a, b) => {
+    const degree = (arrow: Arrow) => DIRECTIONS.filter((direction) => {
+      const [dr, dc] = directionVector(direction);
+      const point = { row: arrow.row + dr, col: arrow.col + dc };
+      return inside(point, rows, cols) && !heads.has(key(point));
+    }).length;
+    return degree(a.entry.arrow) - degree(b.entry.arrow) || a.index - b.index;
   });
 
-  // Give each path a direction that does not cross any path that must remain on the board
-  // after it is selected. Removing arrows in source order therefore always solves the level.
+  for (const { entry, index } of priority) {
+    const head = entry.cells[0];
+    const candidates = perpendiculars[entry.arrow.direction].map((direction) => {
+      const [dr, dc] = directionVector(direction);
+      return { point: { row: head.row + dr, col: head.col + dc }, direction };
+    }).filter(({ point }) => inside(point, rows, cols) && !occupied.has(key(point)));
+    if (!candidates.length) {
+      // The extra board margin should make this rare; keep the arrow connected by
+      // borrowing the nearest free orthogonal neighbor, never by overlapping a path.
+      const fallback = DIRECTIONS.map((direction) => {
+        const [dr, dc] = directionVector(direction);
+        return { point: { row: head.row + dr, col: head.col + dc }, direction };
+      }).find(({ point }) => inside(point, rows, cols) && !occupied.has(key(point)));
+      if (fallback) {
+        entry.cells.push(fallback.point);
+        entry.lastDirection = fallback.direction;
+        occupied.add(key(fallback.point));
+      }
+      continue;
+    }
+    const candidate = candidates[(index + 1) % candidates.length];
+    entry.cells.push(candidate.point);
+    entry.lastDirection = candidate.direction;
+    occupied.add(key(candidate.point));
+  }
+
+  // Grow the paths by adding a turn, creating the long bent shapes seen in the reference.
+  for (const { entry, index } of priority) {
+    const targetLength = count > 24 ? 3 : 4;
+    while (entry.cells.length < targetLength) {
+      const end = entry.cells[entry.cells.length - 1];
+      const order: Direction[] = entry.lastDirection
+        ? perpendiculars[entry.lastDirection]
+        : perpendiculars[entry.arrow.direction];
+      const candidates: { point: GridPoint; direction: Direction }[] = order.map((direction: Direction) => {
+        const [dr, dc] = directionVector(direction);
+        return { point: { row: end.row + dr, col: end.col + dc }, direction };
+      }).filter(({ point }) => inside(point, rows, cols) && !occupied.has(key(point)));
+      if (!candidates.length) break;
+      const candidate = candidates[(index + entry.cells.length) % candidates.length];
+      entry.cells.push(candidate.point);
+      entry.lastDirection = candidate.direction;
+      occupied.add(key(candidate.point));
+    }
+  }
+
+  const seeded: Arrow[] = paths.map(({ arrow, cells }) => ({ ...arrow, path: [...cells].reverse() }));
+
+  // Choose exit directions that are clear of later paths. Removing arrows in this
+  // order is a valid solution, while the earlier arrows can still block later ones.
   const arrows: Arrow[] = seeded.map((arrow, index) => {
     const later = seeded.slice(index + 1);
     const clearDirections = DIRECTIONS.filter((direction) => {
@@ -67,9 +105,7 @@ export function buildBentPathLevel(source: LevelData): LevelData {
         row += dr;
         col += dc;
         if (row < 0 || row >= rows || col < 0 || col >= cols) return true;
-        if (later.some((other) => getArrowCells(other).some((cell) => cell.row === row && cell.col === col))) {
-          return false;
-        }
+        if (later.some((other) => getArrowCells(other).some((cell) => cell.row === row && cell.col === col))) return false;
       }
     });
     const direction = clearDirections.includes(arrow.direction)
