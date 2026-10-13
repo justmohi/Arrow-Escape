@@ -1,0 +1,59 @@
+{
+  "entities": {
+    "UserProgress": {
+      "title": "UserProgress",
+      "description": "User game progress and cloud save state for Arrow Escape",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Firebase Auth UID matching the document path",
+          "maxLength": 128
+        },
+        "email": {
+          "type": "string",
+          "description": "User email address if provided",
+          "maxLength": 256
+        },
+        "displayName": {
+          "type": "string",
+          "description": "Display name of player",
+          "maxLength": 100
+        },
+        "progress": {
+          "type": "object",
+          "description": "Dictionary of levelId to completion stats"
+        },
+        "settings": {
+          "type": "object",
+          "description": "Player game settings and preferences"
+        },
+        "lastPlayedLevelId": {
+          "type": "string",
+          "description": "ID of last played level",
+          "maxLength": 100
+        },
+        "stats": {
+          "type": "object",
+          "description": "Aggregated statistics like total completed and stars"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Server timestamp of last save",
+          "maxLength": 50
+        },
+        "version": {
+          "type": "number",
+          "description": "Data schema version number"
+        }
+      },
+      "required": ["userId"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserProgress",
+      "description": "User cloud save document scoped strictly to authenticated user UID"
+    }
+  }
+}

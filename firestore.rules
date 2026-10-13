@@ -1,0 +1,70 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Global Safety Net: Default-deny catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // Validation helper for UserProgress
+    function isValidUserProgress(data, userId) {
+      return data.userId is string &&
+             data.userId == userId &&
+             data.userId.size() <= 128 &&
+             (!('email' in data) || (data.email is string && data.email.size() <= 256)) &&
+             (!('displayName' in data) || (data.displayName is string && data.displayName.size() <= 100)) &&
+             (!('lastPlayedLevelId' in data) || (data.lastPlayedLevelId is string && data.lastPlayedLevelId.size() <= 100)) &&
+             (!('progress' in data) || data.progress is map) &&
+             (!('settings' in data) || data.settings is map) &&
+             (!('stats' in data) || data.stats is map);
+    }
+
+    // Connection test document
+    match /test/connection {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // User cloud saves strictly scoped to user's UID
+    match /users/{userId} {
+      // Direct get only for owner
+      allow get: if isValidId(userId) && isOwner(userId);
+      // No listing users
+      allow list: if false;
+
+      // Creation by owner with valid schema
+      allow create: if isValidId(userId) &&
+                       isOwner(userId) &&
+                       isValidUserProgress(incoming(), userId);
+
+      // Update by owner maintaining immutable userId
+      allow update: if isValidId(userId) &&
+                       isOwner(userId) &&
+                       incoming().userId == existing().userId &&
+                       isValidUserProgress(incoming(), userId);
+
+      // Delete by owner
+      allow delete: if isValidId(userId) && isOwner(userId);
+    }
+  }
+}

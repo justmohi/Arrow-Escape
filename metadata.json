@@ -1,0 +1,6 @@
+{
+  "name": "Arrow Escape",
+  "description": "A sleek, satisfying grid puzzle game where you unblock directional arrows and clear the board.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
