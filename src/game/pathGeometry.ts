@@ -19,7 +19,7 @@ const inside = (p: GridPoint, rows: number, cols: number) =>
  */
 export function buildBentPathLevel(source: LevelData): LevelData {
   const count = source.arrows.length;
-  const side = Math.max(source.rows, source.cols, Math.ceil(Math.sqrt(count * 3)) + 1);
+  const side = Math.max(source.rows, source.cols, Math.ceil(Math.sqrt(count * 3)) + 2);
   const rows = side;
   const cols = side;
   const remapped = source.arrows.map((arrow) => ({
