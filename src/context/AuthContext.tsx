@@ -170,8 +170,16 @@ export const AuthProvider: React.FC<{
         } else {
           cloudVersionRef.current = cloudData.version;
 
-          // Case 2: Cloud save exists. Check for conflicts with guest progress.
-          const hasConflict = hasProgressConflict(localProg, cloudData.progress);
+          // Case 2: Cloud save exists. Check both completed-level data and the
+          // resume point so a stale cloud pointer cannot silently replace a newer
+          // level selected on this device.
+          const hasProgressConflictFound = hasProgressConflict(localProg, cloudData.progress);
+          const hasResumePointConflict = Boolean(
+            localLastPlayed &&
+            cloudData.lastPlayedLevelId &&
+            localLastPlayed !== cloudData.lastPlayedLevelId
+          );
+          const hasConflict = hasProgressConflictFound || hasResumePointConflict;
 
           if (hasConflict) {
             // Present migration dialog to user
