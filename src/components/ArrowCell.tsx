@@ -144,7 +144,7 @@ export const ArrowCell: React.FC<ArrowCellProps> = ({
             xmlns="http://www.w3.org/2000/svg"
           >
             <path
-              d="M22 6V35M12 25L22 36L32 25"
+              d="M22 38V9M12 19L22 8L32 19"
               stroke={isBlocked ? '#f04444' : isHinted ? '#f5a623' : '#10234d'}
               strokeWidth="4.5"
               strokeLinecap="round"
