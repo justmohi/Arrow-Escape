@@ -139,21 +139,16 @@ export const ArrowCell: React.FC<ArrowCellProps> = ({
         >
           <svg
             viewBox="0 0 44 44"
-            className="w-8 h-8 sm:w-10 sm:h-10 transition-all drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]"
+            className="w-8 h-8 sm:w-10 sm:h-10 transition-all"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
           >
-            {/* Arrow Stem & Tip Path with smooth curved styling */}
             <path
-              d="M22 6L33 19H26.5V36C26.5 37.1 25.6 38 24.5 38H19.5C18.4 38 17.5 37.1 17.5 36V19H11L22 6Z"
-              fill={isBlocked ? '#f04444' : isHinted ? '#f5a623' : '#10234d'}
-              className="transition-colors duration-200"
-            />
-            {/* Subtle inner bevel / highlight line */}
-            <path
-              d="M22 8.5L30.5 18H25V35.5H23.5V18L22 8.5Z"
-              fill="white"
-              fillOpacity="0.25"
+              d="M22 6V35M12 25L22 36L32 25"
+              stroke={isBlocked ? '#f04444' : isHinted ? '#f5a623' : '#10234d'}
+              strokeWidth="4.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
             />
           </svg>
         </div>
