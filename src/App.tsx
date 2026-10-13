@@ -240,14 +240,13 @@ function GameContent() {
         soundManager.playBlocked();
         setBlockedId(arrow.id);
         setBlockedById(pathResult.blockedBy?.id || null);
-        setLivesCount((remaining) => {
-          if (remaining <= 1) {
-            setShowOutOfLives(true);
-            setIsTimerRunning(false);
-            return 0;
-          }
-          return remaining - 1;
-        });
+        if (livesCount <= 1) {
+          setLivesCount(0);
+          setShowOutOfLives(true);
+          setIsTimerRunning(false);
+        } else {
+          setLivesCount(livesCount - 1);
+        }
 
         // Reset blocked feedback animation after 240ms
         setTimeout(() => {
@@ -260,6 +259,7 @@ function GameContent() {
       activeArrows,
       currentLevel,
       escapingIds,
+      livesCount,
       moveHistory.length,
       movesCount,
       progress,
@@ -516,14 +516,16 @@ function GameContent() {
         </nav>
       )}
 
-      <OutOfLivesModal
-        onContinue={() => {
-          setLivesCount(1);
-          setShowOutOfLives(false);
-          setIsTimerRunning(true);
-        }}
-        onRestart={handleRestart}
-      />
+      {showOutOfLives && (
+        <OutOfLivesModal
+          onContinue={() => {
+            setLivesCount(1);
+            setShowOutOfLives(false);
+            setIsTimerRunning(true);
+          }}
+          onRestart={handleRestart}
+        />
+      )}
 
       <VictoryModal
         isOpen={showVictory}
