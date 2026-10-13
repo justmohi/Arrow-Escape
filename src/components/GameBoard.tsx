@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Arrow, Direction, GridPoint } from '../types/game';
+import { Arrow, GridPoint } from '../types/game';
 import { directionVector, getArrowCells } from '../game/solver';
 
 interface GameBoardProps {
@@ -31,7 +31,13 @@ function pointAt(cell: GridPoint) {
 }
 
 function getArrowPath(arrow: Arrow) {
-  return getArrowCells(arrow).map(pointAt).map((point) => `${point.x},${point.y}`).join(' ');
+  const cells = getArrowCells(arrow);
+  const points = cells.map(pointAt);
+  if (points.length === 1) {
+    const [dr, dc] = directionVector(arrow.direction);
+    points.unshift({ x: points[0].x - dc * 28, y: points[0].y - dr * 28 });
+  }
+  return points.map((point) => `${point.x},${point.y}`).join(' ');
 }
 
 function arrowHead(arrow: Arrow) {
