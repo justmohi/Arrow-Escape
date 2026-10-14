@@ -182,7 +182,7 @@ function GameContent() {
         };
         setMoveHistory((prev) => [...prev, record]);
 
-        // Complete escape after animation duration (350ms)
+        // Complete escape after directional exit animation (440ms)
         setTimeout(() => {
           setActiveArrows((prev) => {
             const next = prev.filter((a) => a.id !== arrow.id);
@@ -234,7 +234,7 @@ function GameContent() {
           });
 
           isAnimatingRef.current = false;
-        }, 350);
+        }, 440);
       } else {
         // 2. Blocked collision!
         soundManager.playBlocked();
