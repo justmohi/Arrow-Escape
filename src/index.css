@@ -501,11 +501,22 @@ button { font: inherit; -webkit-tap-highlight-color: transparent; }
   pointer-events: none;
   overflow: visible;
 }
-.bent-arrow { transform-origin: center; transition: opacity .24s ease, filter .24s ease; }
+.bent-arrow { transform-box: fill-box; transform-origin: center; }
 .bent-arrow polyline { vector-effect: non-scaling-stroke; }
 .bent-arrow polygon { vector-effect: non-scaling-stroke; }
-.bent-arrow-escaping { opacity: 0; filter: blur(1px); }
-.bent-arrow-reduced-motion { transition: none; }
+/* A successful tap sends the entire connected arrow beyond the board edge. */
+.bent-arrow-escaping { animation: arrow-exit .42s cubic-bezier(.22,.72,.24,1) both; }
+.bent-arrow-escaping.bent-arrow-up { --exit-x: 0; --exit-y: -115vh; }
+.bent-arrow-escaping.bent-arrow-down { --exit-x: 0; --exit-y: 115vh; }
+.bent-arrow-escaping.bent-arrow-left { --exit-x: -115vw; --exit-y: 0; }
+.bent-arrow-escaping.bent-arrow-right { --exit-x: 115vw; --exit-y: 0; }
+@keyframes arrow-exit {
+  0% { transform: translate(0,0) scale(1); opacity: 1; }
+  72% { opacity: 1; }
+  100% { transform: translate(var(--exit-x, 0),var(--exit-y, 0)) scale(.94); opacity: 0; }
+}
+.bent-arrow-reduced-motion.bent-arrow-escaping { animation: arrow-exit-reduced .18s ease-out both; }
+@keyframes arrow-exit-reduced { to { opacity: 0; } }
 @media (max-width: 480px) {
   .puzzle-board-wrap { width: 100%; }
   .puzzle-board { background-size: 15px 15px; }
