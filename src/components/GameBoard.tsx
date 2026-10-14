@@ -15,11 +15,11 @@ interface GameBoardProps {
 }
 
 const arrowColors: Record<NonNullable<Arrow['colorVariant']>, string> = {
-  mint: '#1687e8',
-  cyan: '#0d9bd7',
-  amber: '#e49a27',
-  emerald: '#1b9a80',
-  indigo: '#536bd6',
+  mint: '#172b4d',
+  cyan: '#172b4d',
+  amber: '#172b4d',
+  emerald: '#172b4d',
+  indigo: '#172b4d',
 };
 
 function cellKey(cell: GridPoint) {
@@ -111,9 +111,9 @@ export const GameBoard: React.FC<GameBoardProps> = ({
                   className={`bent-arrow ${escapingIds.has(arrow.id) ? 'bent-arrow-escaping' : ''} ${reducedMotion ? 'bent-arrow-reduced-motion' : ''}`}
                   style={{ '--arrow-color': color } as React.CSSProperties}
                 >
-                  <polyline points={points} fill="none" stroke={color} strokeWidth="10" strokeLinecap="round" strokeLinejoin="round" />
+                  <polyline points={points} fill="none" stroke={color} strokeWidth="7" strokeLinecap="round" strokeLinejoin="round" />
                   <polygon points={arrowHead(arrow)} fill={color} />
-                  <polyline points={points} fill="none" stroke="white" strokeOpacity=".32" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  
                 </g>
               );
             })}
