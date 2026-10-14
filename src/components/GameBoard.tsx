@@ -108,7 +108,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({
               return (
                 <g
                   key={arrow.id}
-                  className={`bent-arrow ${escapingIds.has(arrow.id) ? 'bent-arrow-escaping' : ''} ${reducedMotion ? 'bent-arrow-reduced-motion' : ''}`}
+                  className={`bent-arrow bent-arrow-${arrow.direction.toLowerCase()} ${escapingIds.has(arrow.id) ? 'bent-arrow-escaping' : ''} ${reducedMotion ? 'bent-arrow-reduced-motion' : ''}`}
                   style={{ '--arrow-color': color } as React.CSSProperties}
                 >
                   <polyline points={points} fill="none" stroke={color} strokeWidth="7" strokeLinecap="round" strokeLinejoin="round" />
