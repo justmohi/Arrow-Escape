@@ -43,9 +43,9 @@ function getArrowPath(arrow: Arrow) {
 function arrowHead(arrow: Arrow) {
   const { x, y } = pointAt({ row: arrow.row, col: arrow.col });
   const [dr, dc] = directionVector(arrow.direction);
-  const tip = { x: x + dc * 37, y: y + dr * 37 };
-  const base = { x: x - dc * 10, y: y - dr * 10 };
-  const perp = { x: -dr * 15, y: dc * 15 };
+  const tip = { x: x + dc * 31, y: y + dr * 31 };
+  const base = { x: x - dc * 9, y: y - dr * 9 };
+  const perp = { x: -dr * 11, y: dc * 11 };
   return `${tip.x},${tip.y} ${base.x + perp.x},${base.y + perp.y} ${base.x - perp.x},${base.y - perp.y}`;
 }
 
@@ -111,8 +111,8 @@ export const GameBoard: React.FC<GameBoardProps> = ({
                   className={`bent-arrow bent-arrow-${arrow.direction.toLowerCase()} ${escapingIds.has(arrow.id) ? 'bent-arrow-escaping' : ''} ${reducedMotion ? 'bent-arrow-reduced-motion' : ''}`}
                   style={{ '--arrow-color': color } as React.CSSProperties}
                 >
-                  <polyline className="arrow-path-shadow" points={points} fill="none" stroke={color} strokeWidth="9" strokeLinecap="round" strokeLinejoin="round" opacity=".10" />
-                  <polyline className="arrow-path-line" points={points} fill="none" stroke={color} strokeWidth="7" strokeLinecap="round" strokeLinejoin="round" />
+                  <polyline className="arrow-path-shadow" points={points} fill="none" stroke={color} strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" opacity=".12" />
+                  <polyline className="arrow-path-line" points={points} fill="none" stroke={color} strokeWidth="4.5" strokeLinecap="round" strokeLinejoin="round" />
                   <polygon className="arrow-head-shape" points={arrowHead(arrow)} fill={color} />
                   
                 </g>
