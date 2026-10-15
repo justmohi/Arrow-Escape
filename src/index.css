@@ -522,3 +522,40 @@ button { font: inherit; -webkit-tap-highlight-color: transparent; }
   .puzzle-board { background-size: 15px 15px; }
   .bent-arrow polyline { stroke-width: 8px; }
 }
+
+
+/* Realistic board feel: tactile surface, crisp ink paths, and directional momentum. */
+.puzzle-board {
+  background-color: #fff !important;
+  background-image:
+    radial-gradient(circle, rgba(24,43,73,.16) 1px, transparent 1.15px),
+    linear-gradient(145deg, rgba(255,255,255,.98), rgba(248,250,253,.98)) !important;
+  background-size: 19px 19px, 100% 100%;
+  box-shadow: 0 2px 4px rgba(18,39,68,.04), 0 14px 34px rgba(30,55,87,.11), inset 0 0 0 1px rgba(255,255,255,.85) !important;
+}
+.arrow-path-line {
+  filter: drop-shadow(0 1px 0 rgba(8,20,40,.08));
+  transition: stroke .16s ease, opacity .16s ease;
+}
+.arrow-path-shadow { pointer-events: none; }
+.arrow-head-shape { filter: drop-shadow(0 1px 1px rgba(10,24,45,.16)); }
+.bent-arrow { transition: filter .16s ease; }
+.bent-arrow:not(.bent-arrow-escaping):hover { filter: drop-shadow(0 2px 2px rgba(23,43,77,.14)); }
+.bent-arrow-escaping {
+  animation: arrow-exit .52s cubic-bezier(.16,.78,.22,1) both;
+  transform-origin: center;
+}
+@keyframes arrow-exit {
+  0% { transform: translate(0,0) scale(1); opacity: 1; filter: drop-shadow(0 1px 1px rgba(10,24,45,.12)); }
+  18% { opacity: 1; }
+  100% { transform: translate(var(--exit-x, 0),var(--exit-y, 0)) scale(.97); opacity: 0; filter: drop-shadow(0 0 0 transparent); }
+}
+.path-hit-cell.path-hit-active:active { background: rgba(23,43,77,.07); }
+.path-hit-blocked, .path-hit-blocker { animation: blocked-pulse .24s ease-out; }
+@keyframes blocked-pulse {
+  0% { background: rgba(237,77,91,.22); }
+  100% { background: rgba(237,77,91,.07); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bent-arrow-escaping { animation-duration: .18s; }
+}
