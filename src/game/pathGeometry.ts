@@ -73,7 +73,7 @@ export function buildBentPathLevel(source: LevelData): LevelData {
 
   // Grow the paths by adding a turn, creating the long bent shapes seen in the reference.
   for (const { entry, index } of priority) {
-    const targetLength = count > 24 ? 4 : count > 14 ? 5 : 6;
+    const targetLength = count > 24 ? 5 : count > 14 ? 7 : 8;
     while (entry.cells.length < targetLength) {
       const end = entry.cells[entry.cells.length - 1];
       const order: Direction[] = entry.lastDirection
