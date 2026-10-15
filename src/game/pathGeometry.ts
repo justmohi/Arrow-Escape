@@ -73,12 +73,17 @@ export function buildBentPathLevel(source: LevelData): LevelData {
 
   // Grow the paths by adding a turn, creating the long bent shapes seen in the reference.
   for (const { entry, index } of priority) {
-    const targetLength = count > 24 ? 5 : count > 14 ? 7 : 8;
+    const targetLength = count > 24 ? 5 : count > 14 ? 6 : 7;
     while (entry.cells.length < targetLength) {
       const end = entry.cells[entry.cells.length - 1];
-      const order: Direction[] = entry.lastDirection
+      const order: Direction[] = (entry.lastDirection
         ? perpendiculars[entry.lastDirection]
-        : perpendiculars[entry.arrow.direction];
+        : perpendiculars[entry.arrow.direction]).filter((direction) => {
+          const [aRow, aCol] = directionVector(entry.lastDirection ?? entry.arrow.direction);
+          const [bRow, bCol] = directionVector(direction);
+          // Prefer a real corner at every segment instead of long straight rails.
+          return aRow * bRow + aCol * bCol === 0;
+        });
       const candidates: { point: GridPoint; direction: Direction }[] = order.map((direction: Direction) => {
         const [dr, dc] = directionVector(direction);
         return { point: { row: end.row + dr, col: end.col + dc }, direction };
