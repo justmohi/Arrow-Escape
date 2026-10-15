@@ -579,3 +579,25 @@ button { font: inherit; -webkit-tap-highlight-color: transparent; }
   .puzzle-board { border-radius: 14px !important; }
   .arrow-path-line { stroke-width: 4px !important; }
 }
+
+
+/* Slithering escape motion: the whole connected path travels outward with a subtle snake-like wave. */
+.bent-arrow-escaping {
+  transform-box: view-box;
+  transform-origin: center;
+  animation: snake-escape .72s cubic-bezier(.2,.72,.25,1) both !important;
+  will-change: transform, opacity;
+}
+@keyframes snake-escape {
+  0%   { transform: translate(0,0) rotate(0deg) scale(1); opacity: 1; }
+  12%  { transform: translate(calc(var(--exit-x, 0) * .06), calc(var(--exit-y, 0) * .06)) rotate(-2.4deg) scale(1.015); opacity: 1; }
+  25%  { transform: translate(calc(var(--exit-x, 0) * .18), calc(var(--exit-y, 0) * .18)) rotate(2.4deg) scale(1.02); opacity: 1; }
+  38%  { transform: translate(calc(var(--exit-x, 0) * .34), calc(var(--exit-y, 0) * .34)) rotate(-2deg) scale(1.015); opacity: 1; }
+  52%  { transform: translate(calc(var(--exit-x, 0) * .52), calc(var(--exit-y, 0) * .52)) rotate(1.7deg) scale(1.01); opacity: .96; }
+  68%  { transform: translate(calc(var(--exit-x, 0) * .72), calc(var(--exit-y, 0) * .72)) rotate(-1.2deg) scale(.99); opacity: .78; }
+  84%  { transform: translate(calc(var(--exit-x, 0) * .9), calc(var(--exit-y, 0) * .9)) rotate(.6deg) scale(.97); opacity: .35; }
+  100% { transform: translate(var(--exit-x, 0),var(--exit-y, 0)) rotate(0deg) scale(.94); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bent-arrow-escaping { animation: arrow-exit-reduced .18s ease-out both !important; }
+}
