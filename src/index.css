@@ -581,22 +581,23 @@ button { font: inherit; -webkit-tap-highlight-color: transparent; }
 }
 
 
-/* Slithering escape motion: the whole connected path travels outward with a subtle snake-like wave. */
+
+
+/* Smooth escape: the path accelerates outward with a restrained side-to-side flex. */
 .bent-arrow-escaping {
-  transform-box: view-box;
+  transform-box: fill-box;
   transform-origin: center;
-  animation: snake-escape .72s cubic-bezier(.2,.72,.25,1) both !important;
+  animation: snake-escape .66s cubic-bezier(.18,.76,.22,1) both !important;
   will-change: transform, opacity;
 }
 @keyframes snake-escape {
-  0%   { transform: translate(0,0) rotate(0deg) scale(1); opacity: 1; }
-  12%  { transform: translate(calc(var(--exit-x, 0) * .06), calc(var(--exit-y, 0) * .06)) rotate(-2.4deg) scale(1.015); opacity: 1; }
-  25%  { transform: translate(calc(var(--exit-x, 0) * .18), calc(var(--exit-y, 0) * .18)) rotate(2.4deg) scale(1.02); opacity: 1; }
-  38%  { transform: translate(calc(var(--exit-x, 0) * .34), calc(var(--exit-y, 0) * .34)) rotate(-2deg) scale(1.015); opacity: 1; }
-  52%  { transform: translate(calc(var(--exit-x, 0) * .52), calc(var(--exit-y, 0) * .52)) rotate(1.7deg) scale(1.01); opacity: .96; }
-  68%  { transform: translate(calc(var(--exit-x, 0) * .72), calc(var(--exit-y, 0) * .72)) rotate(-1.2deg) scale(.99); opacity: .78; }
-  84%  { transform: translate(calc(var(--exit-x, 0) * .9), calc(var(--exit-y, 0) * .9)) rotate(.6deg) scale(.97); opacity: .35; }
-  100% { transform: translate(var(--exit-x, 0),var(--exit-y, 0)) rotate(0deg) scale(.94); opacity: 0; }
+  0% { transform: translate(0,0) skew(0deg,0deg) scale(1); opacity: 1; }
+  14% { transform: translate(calc(var(--exit-x, 0) * .07),calc(var(--exit-y, 0) * .07)) skew(-1.8deg,1deg) scale(1.015); opacity: 1; }
+  29% { transform: translate(calc(var(--exit-x, 0) * .22),calc(var(--exit-y, 0) * .22)) skew(1.8deg,-1deg) scale(1.02); opacity: 1; }
+  44% { transform: translate(calc(var(--exit-x, 0) * .43),calc(var(--exit-y, 0) * .43)) skew(-1.3deg,.7deg) scale(1.01); opacity: 1; }
+  60% { transform: translate(calc(var(--exit-x, 0) * .65),calc(var(--exit-y, 0) * .65)) skew(.9deg,-.5deg) scale(1); opacity: .9; }
+  78% { transform: translate(calc(var(--exit-x, 0) * .86),calc(var(--exit-y, 0) * .86)) skew(-.4deg,.2deg) scale(.98); opacity: .55; }
+  100% { transform: translate(var(--exit-x, 0),var(--exit-y, 0)) skew(0deg,0deg) scale(.96); opacity: 0; }
 }
 @media (prefers-reduced-motion: reduce) {
   .bent-arrow-escaping { animation: arrow-exit-reduced .18s ease-out both !important; }
