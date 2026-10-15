@@ -93,26 +93,62 @@ export function buildBentPathLevel(source: LevelData): LevelData {
 
   const seeded: Arrow[] = paths.map(({ arrow, cells }) => ({ ...arrow, path: [...cells].reverse() }));
 
-  // Choose exit directions that are clear of later paths. Removing arrows in this
-  // order is a valid solution, while the earlier arrows can still block later ones.
-  const arrows: Arrow[] = seeded.map((arrow, index) => {
-    const later = seeded.slice(index + 1);
-    const clearDirections = DIRECTIONS.filter((direction) => {
-      const [dr, dc] = directionVector(direction);
-      let row = arrow.row;
-      let col = arrow.col;
-      while (true) {
-        row += dr;
-        col += dc;
-        if (row < 0 || row >= rows || col < 0 || col >= cols) return true;
-        if (later.some((other) => getArrowCells(other).some((cell) => cell.row === row && cell.col === col))) return false;
-      }
+  // Build a guaranteed removal order against the complete paths. At each step,
+  // select an arrow whose exit ray is clear of every arrow still on the board.
+  // This mirrors the real game mechanic and prevents cyclic direction assignments.
+  const remaining = [...seeded];
+  const ordered: Arrow[] = [];
+  while (remaining.length) {
+    const options = remaining.flatMap((arrow) => {
+      const clearDirections = DIRECTIONS.filter((direction) => {
+        const [dr, dc] = directionVector(direction);
+        let row = arrow.row;
+        let col = arrow.col;
+        while (true) {
+          row += dr;
+          col += dc;
+          if (row < 0 || row >= rows || col < 0 || col >= cols) return true;
+          if (remaining.some((other) => other.id !== arrow.id &&
+            getArrowCells(other).some((cell) => cell.row === row && cell.col === col))) return false;
+        }
+      });
+      return clearDirections.map((direction) => ({ arrow, direction }));
     });
-    const direction = clearDirections.includes(arrow.direction)
-      ? arrow.direction
-      : clearDirections[0] ?? arrow.direction;
-    return { ...arrow, direction };
-  });
+
+    if (!options.length) {
+      // Direction is part of the puzzle data, so resolve a rare cycle by choosing
+      // the arrow/direction with the fewest blockers; following removals will then
+      // be re-evaluated against the updated board.
+      let best: { arrow: Arrow; direction: Direction; blockers: number } | null = null;
+      for (const arrow of remaining) {
+        for (const direction of DIRECTIONS) {
+          const [dr, dc] = directionVector(direction);
+          let row = arrow.row;
+          let col = arrow.col;
+          let blockers = 0;
+          while (true) {
+            row += dr;
+            col += dc;
+            if (row < 0 || row >= rows || col < 0 || col >= cols) break;
+            if (remaining.some((other) => other.id !== arrow.id &&
+              getArrowCells(other).some((cell) => cell.row === row && cell.col === col))) blockers++;
+          }
+          if (!best || blockers < best.blockers) best = { arrow, direction, blockers };
+        }
+      }
+      if (!best) break;
+      // The chosen arrow is assigned its least-blocked exit, then the next pass
+      // recalculates visibility after its removal.
+      ordered.push({ ...best.arrow, direction: best.direction });
+      remaining.splice(remaining.findIndex((item) => item.id === best!.arrow.id), 1);
+      continue;
+    }
+
+    const chosen = options[0];
+    ordered.push({ ...chosen.arrow, direction: chosen.direction });
+    remaining.splice(remaining.findIndex((item) => item.id === chosen.arrow.id), 1);
+  }
+  const arrows = ordered;
 
   return {
     ...source,
