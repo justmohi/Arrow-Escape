@@ -111,8 +111,9 @@ export const GameBoard: React.FC<GameBoardProps> = ({
                   className={`bent-arrow bent-arrow-${arrow.direction.toLowerCase()} ${escapingIds.has(arrow.id) ? 'bent-arrow-escaping' : ''} ${reducedMotion ? 'bent-arrow-reduced-motion' : ''}`}
                   style={{ '--arrow-color': color } as React.CSSProperties}
                 >
-                  <polyline points={points} fill="none" stroke={color} strokeWidth="7" strokeLinecap="round" strokeLinejoin="round" />
-                  <polygon points={arrowHead(arrow)} fill={color} />
+                  <polyline className="arrow-path-shadow" points={points} fill="none" stroke={color} strokeWidth="9" strokeLinecap="round" strokeLinejoin="round" opacity=".10" />
+                  <polyline className="arrow-path-line" points={points} fill="none" stroke={color} strokeWidth="7" strokeLinecap="round" strokeLinejoin="round" />
+                  <polygon className="arrow-head-shape" points={arrowHead(arrow)} fill={color} />
                   
                 </g>
               );
