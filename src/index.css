@@ -559,3 +559,23 @@ button { font: inherit; -webkit-tap-highlight-color: transparent; }
 @media (prefers-reduced-motion: reduce) {
   .bent-arrow-escaping { animation-duration: .18s; }
 }
+
+
+/* Refined board: lighter grid, thinner connected paths, more polished touch feedback */
+.puzzle-board {
+  border-radius: 16px !important;
+  background-color: #fcfdff !important;
+  background-image: radial-gradient(circle, #d5deea .9px, transparent 1px);
+  background-size: 18px 18px;
+  box-shadow: 0 14px 36px rgba(27, 49, 79, .075), inset 0 1px 0 rgba(255,255,255,.95) !important;
+}
+.arrow-path-shadow { filter: drop-shadow(0 1px 1px rgba(20, 40, 70, .08)); }
+.arrow-path-line { stroke-width: 4.5 !important; }
+.arrow-head-shape { filter: drop-shadow(0 1px 1px rgba(20,40,70,.12)); }
+.path-hit-cell.path-hit-active:hover { background: rgba(49,136,232,.055); }
+.path-hit-cell.path-hit-active:active { background: rgba(49,136,232,.10); }
+.bent-arrow-escaping { animation-duration: .52s; }
+@media (max-width: 480px) {
+  .puzzle-board { border-radius: 14px !important; }
+  .arrow-path-line { stroke-width: 4px !important; }
+}
